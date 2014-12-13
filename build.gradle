@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'javax.websocket:javax.websocket-api:1.1'
+    compile 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.9'
+
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.glassfish.tyrus:tyrus-client:1.9'
+    testCompile 'com.google.guava:guava:18.0'
+}

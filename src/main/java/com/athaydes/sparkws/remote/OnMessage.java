@@ -9,7 +9,7 @@ import java.io.IOException;
 @FunctionalInterface
 public interface OnMessage {
 
-    void accept( Session session, String message )
+    void acceptWhole( Session session, String message )
             throws IOException;
 
 //    default void sendText( String text ) {

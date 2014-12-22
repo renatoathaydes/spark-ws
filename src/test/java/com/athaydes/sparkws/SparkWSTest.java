@@ -2,14 +2,20 @@ package com.athaydes.sparkws;
 
 import com.google.common.util.concurrent.SettableFuture;
 import org.glassfish.tyrus.client.ClientManager;
+import org.junit.After;
 import org.junit.Test;
 
-import javax.websocket.*;
+import javax.websocket.ClientEndpointConfig;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler;
+import javax.websocket.Session;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import static com.athaydes.sparkws.SparkWS.runServer;
+import static com.athaydes.sparkws.SparkWS.stopServer;
 import static com.athaydes.sparkws.SparkWS.wsEndpoint;
 import static org.junit.Assert.assertEquals;
 
@@ -20,6 +26,11 @@ public class SparkWSTest {
 
     private final ClientEndpointConfig cec = ClientEndpointConfig.Builder.create().build();
     private final ClientManager client = ClientManager.createClient();
+
+    @After
+    public void cleanup() {
+        stopServer();
+    }
 
     @Test
     public void simplestStart() throws Exception {

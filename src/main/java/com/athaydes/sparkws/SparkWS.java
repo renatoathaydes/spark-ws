@@ -1,67 +1,72 @@
 package com.athaydes.sparkws;
 
+import com.athaydes.sparkws.internal.EndpointWithOnMessage;
 import com.athaydes.sparkws.remote.OnMessage;
 import com.athaydes.sparkws.remote.OnStart;
-import org.glassfish.tyrus.core.TyrusServerEndpointConfig;
 import org.glassfish.tyrus.core.TyrusWebSocketEngine;
 import org.glassfish.tyrus.spi.ServerContainer;
 import org.glassfish.tyrus.spi.ServerContainerFactory;
 import sun.plugin.dom.exception.InvalidStateException;
 
-import javax.websocket.*;
+import javax.websocket.CloseReason;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler;
+import javax.websocket.Session;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * SparkWS is, basically, a namespace for all "functions", or static methods, that can
+ * be used to configure a Websocket server.
  */
 public class SparkWS {
 
-    private static final State state = new State();
-    private static final Map<String, OnMessage> handlers = new ConcurrentHashMap<>();
-    private static volatile ServerContainer server;
+    private static volatile ServerInstance serverInstance;
 
-    public static synchronized void runServer() {
-        if ( server != null ) {
-            throw new InvalidStateException( "Server already running" );
-        }
-
+    static {
         Map<String, Object> props = new HashMap<>();
         props.put( TyrusWebSocketEngine.WSADL_SUPPORT, "true" );
 
-        server = ServerContainerFactory.createServerContainer( props );
+        ServerContainer server = ServerContainerFactory.createServerContainer( props );
+        serverInstance = new ServerInstance( server );
+    }
 
-        new Thread( "SparkWS-Server" ) {
-            @Override
-            public void run() {
-                try {
-                    server.addEndpoint( TyrusServerEndpointConfig.Builder
-                            .create( InternalSparkWSEndpoint.class, "/{param1}" ).build() );
-                    server.start( state.rootPath.get(), state.port.get() );
-                    System.out.println( "Server started. Press any key to stop" );
-                    System.in.read();
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                } finally {
-                    server.stop();
-                }
-            }
-        }.start();
+    public static synchronized void runServer() {
+        serverInstance.start();
+    }
 
+    public static synchronized void stopServer() {
+        if ( serverInstance != null && serverInstance.isStarted() ) {
+            serverInstance.stop();
+        }
     }
 
     public static void wsRootPath( String rootPath ) {
-        state.rootPath.set( rootPath );
+        ensureServerNotStarted();
+        serverInstance.getState().rootPath.set( rootPath );
     }
 
     public static void wsEndpoint( String path, OnMessage onMessage ) {
-        handlers.put( path, onMessage );
+        ensureServerNotStarted();
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onMessage ) );
     }
 
     public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage ) {
-        //TODO
+        ensureServerNotStarted();
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage ) );
+    }
+
+    public static void wsEndpoint( String path, OnMessage onMessage, Endpoint endpoint ) {
+        ensureServerNotStarted();
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onMessage, endpoint ) );
+    }
+
+    private static void ensureServerNotStarted() {
+        if ( serverInstance.isStarted() ) {
+            throw new InvalidStateException( "Server already started" );
+        }
     }
 
     public static class InternalSparkWSEndpoint extends Endpoint {
@@ -69,8 +74,9 @@ public class SparkWS {
         @Override
         public void onOpen( final Session session, EndpointConfig config ) {
             System.out.println( "Session started on path: " + session.getRequestURI().getPath() );
-            final OnMessage handler = handlers.get( session.getRequestURI().getPath().substring( 1 ) );
+            final EndpointWithOnMessage handler = getHandler( session );
             if ( handler == null ) {
+                System.out.println( "No handler found for path " + session.getRequestURI().getPath() );
                 try {
                     session.close();
                 } catch ( IOException e ) {
@@ -83,7 +89,7 @@ public class SparkWS {
                 public void onMessage( String message ) {
                     System.out.println( "Server got message " + message );
                     try {
-                        handler.accept( session, message );
+                        handler.acceptWhole( session, message );
                     } catch ( IOException e ) {
                         e.printStackTrace();
                     }
@@ -93,14 +99,22 @@ public class SparkWS {
 
         @Override
         public void onClose( Session session, CloseReason closeReason ) {
-            //TODO
-            super.onClose( session, closeReason );
+            final EndpointWithOnMessage handler = getHandler( session );
+            if ( handler != null ) {
+                handler.onClose( session, closeReason );
+            }
         }
 
         @Override
         public void onError( Session session, Throwable thr ) {
-            //TODO
-            super.onError( session, thr );
+            final EndpointWithOnMessage handler = getHandler( session );
+            if ( handler != null ) {
+                handler.onError( session, thr );
+            }
+        }
+
+        private EndpointWithOnMessage getHandler( Session session ) {
+            return serverInstance.getHandlers().get( session.getRequestURI().getPath().substring( 1 ) );
         }
     }
 

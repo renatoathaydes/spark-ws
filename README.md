@@ -51,3 +51,7 @@ wsEndpoint( "chat",
 
 In the above example, the first closure is a `onStart` handler, and the second a `onMessage` handler.
 
+## Demos
+
+* A very simple Spark-WS-based [Chat application](src/demo/com/athaydes/sparkws/demo), complete with
+  a HTML/JavaScript client.

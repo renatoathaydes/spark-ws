@@ -52,7 +52,7 @@ class ServerInstance {
             public void run() {
                 try {
                     server.addEndpoint( TyrusServerEndpointConfig.Builder
-                            .create( SparkWS.InternalSparkWSEndpoint.class, "/{param1}" ).build() );
+                            .create( InternalSparkWSEndpoint.class, "/{param1}" ).build() );
                     server.start( state.rootPath.get(), state.port.get() );
                     System.out.println( "SparkWS Server started!" );
                     serverLatch.await();

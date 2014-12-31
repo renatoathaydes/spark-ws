@@ -66,6 +66,24 @@ public class SparkWSTest {
         assertMessageReceived( "ep2", "EP2" );
     }
 
+    @Test
+    public void multiPathEndpoints() throws Exception {
+        wsEndpoint( "part1/part2", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P1P2" );
+        } );
+        wsEndpoint( "part1/part3", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P1P3" );
+        } );
+        wsEndpoint( "part2/part3", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P2P3" );
+        } );
+        runServer();
+
+        assertMessageReceived( "part1/part2", "P1P2" );
+        assertMessageReceived( "part1/part3", "P1P3" );
+        assertMessageReceived( "part2/part3", "P2P3" );
+    }
+
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {
         final SettableFuture<String> futureMessage = SettableFuture.create();
 

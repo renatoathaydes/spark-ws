@@ -1,6 +1,7 @@
 package com.athaydes.sparkws;
 
 import com.athaydes.sparkws.internal.EndpointWithOnMessage;
+import com.athaydes.sparkws.internal.StringPathUtil;
 import org.glassfish.tyrus.core.TyrusServerEndpointConfig;
 import org.glassfish.tyrus.core.TyrusWebSocketEngine;
 import org.glassfish.tyrus.spi.ServerContainer;
@@ -12,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 class ServerInstance {
+
+    static final int MAX_PATH_PARTS = 16;
 
     private volatile State state;
     private volatile ServerContainer server;
@@ -51,8 +54,10 @@ class ServerInstance {
             @Override
             public void run() {
                 try {
-                    server.addEndpoint( TyrusServerEndpointConfig.Builder
-                            .create( InternalSparkWSEndpoint.class, "/{param1}" ).build() );
+                    for ( String parameters : StringPathUtil.parametersPaths( MAX_PATH_PARTS ) ) {
+                        server.addEndpoint( TyrusServerEndpointConfig.Builder
+                                .create( InternalSparkWSEndpoint.class, parameters ).build() );
+                    }
                     server.start( state.rootPath.get(), state.port.get() );
                     System.out.println( "SparkWS Server started!" );
                     serverLatch.await();

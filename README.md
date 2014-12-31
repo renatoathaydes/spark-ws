@@ -16,7 +16,7 @@ public class HelloSparkWS {
 ```
 
 You can immediately test it using [this web page](http://www.websocket.org/echo.html).
-Set `Location` to `ws://192.168.1.16:8025/hello`.
+Set `Location` to `ws://localhost:8025/hello`.
 
 ## Depending on Spark-WS
 

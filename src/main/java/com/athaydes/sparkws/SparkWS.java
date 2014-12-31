@@ -1,9 +1,5 @@
 package com.athaydes.sparkws;
 
-import com.athaydes.sparkws.internal.EndpointWithOnMessage;
-import com.athaydes.sparkws.remote.OnMessage;
-import com.athaydes.sparkws.remote.OnStart;
-
 import javax.websocket.Endpoint;
 
 /**

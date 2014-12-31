@@ -1,7 +1,5 @@
 package com.athaydes.sparkws;
 
-import com.athaydes.sparkws.internal.EndpointWithOnMessage;
-
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
@@ -9,7 +7,7 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import java.io.IOException;
 
-public class InternalSparkWSEndpoint extends Endpoint {
+class InternalSparkWSEndpoint extends Endpoint {
 
     @Override
     public void onOpen( final Session session, EndpointConfig config ) {

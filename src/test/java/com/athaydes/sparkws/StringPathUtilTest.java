@@ -1,5 +1,6 @@
-package com.athaydes.sparkws.internal;
+package com.athaydes.sparkws;
 
+import com.athaydes.sparkws.StringPathUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;

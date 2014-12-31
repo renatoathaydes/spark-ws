@@ -1,4 +1,4 @@
-package com.athaydes.sparkws.remote;
+package com.athaydes.sparkws;
 
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;

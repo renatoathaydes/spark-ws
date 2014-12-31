@@ -1,7 +1,5 @@
 package com.athaydes.sparkws;
 
-import com.athaydes.sparkws.internal.EndpointWithOnMessage;
-import com.athaydes.sparkws.internal.StringPathUtil;
 import org.glassfish.tyrus.core.TyrusServerEndpointConfig;
 import org.glassfish.tyrus.core.TyrusWebSocketEngine;
 import org.glassfish.tyrus.spi.ServerContainer;

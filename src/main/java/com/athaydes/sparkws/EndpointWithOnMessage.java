@@ -1,17 +1,11 @@
-package com.athaydes.sparkws.internal;
-
-import com.athaydes.sparkws.remote.OnMessage;
-import com.athaydes.sparkws.remote.OnStart;
+package com.athaydes.sparkws;
 
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
 import java.io.IOException;
 
-/**
- *
- */
-public class EndpointWithOnMessage extends Endpoint implements OnMessage {
+class EndpointWithOnMessage extends Endpoint implements OnMessage {
 
     private final OnMessage onMessage;
     private OnStart onStart;

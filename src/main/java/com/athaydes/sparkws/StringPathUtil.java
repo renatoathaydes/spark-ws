@@ -1,9 +1,6 @@
-package com.athaydes.sparkws.internal;
+package com.athaydes.sparkws;
 
-/**
- *
- */
-public class StringPathUtil {
+class StringPathUtil {
 
     public static String parametersPath( int paths ) {
         StringBuilder sb = new StringBuilder();

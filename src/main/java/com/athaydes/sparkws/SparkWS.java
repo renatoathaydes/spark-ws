@@ -1,6 +1,9 @@
 package com.athaydes.sparkws;
 
+import org.glassfish.tyrus.core.TyrusSession;
+
 import javax.websocket.Endpoint;
+import javax.websocket.Session;
 
 /**
  * SparkWS is, basically, a namespace for all "functions", or static methods, that can
@@ -13,6 +16,7 @@ public class SparkWS {
     public static synchronized void stopServer() {
         if ( serverInstance != null ) {
             serverInstance.stop();
+            System.out.println("Server STOPPED!");
         }
     }
 
@@ -33,6 +37,10 @@ public class SparkWS {
     public static void wsEndpoint( String path, OnMessage onMessage, Endpoint endpoint ) {
         serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onMessage, endpoint ) );
         serverInstance.start();
+    }
+
+    public static void broadcast( Session session, String message ) {
+        ( ( TyrusSession ) session ).broadcast( message );
     }
 
 }

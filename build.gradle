@@ -12,6 +12,15 @@ allprojects {
     }
 }
 
+sourceSets {
+    test {
+        java {
+            srcDir 'src/test/java'
+            srcDir 'src/demo'
+        }
+    }
+}
+
 dependencies {
     compile 'javax.websocket:javax.websocket-api:1.1'
     compile 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.9'

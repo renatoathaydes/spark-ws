@@ -7,7 +7,10 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import java.io.IOException;
 
-class InternalSparkWSEndpoint extends Endpoint {
+/**
+ * Internal class, must be public only so that the Tyrus framework can instantiate it.
+ */
+public class InternalSparkWSEndpoint extends Endpoint {
 
     @Override
     public void onOpen( final Session session, EndpointConfig config ) {

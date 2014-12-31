@@ -1,6 +1,8 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
-version = '1.0'
+group = 'com.athaydes.spark-ws'
+version = '0.1'
 
 allprojects {
     sourceCompatibility = 1.8
@@ -28,4 +30,19 @@ dependencies {
     testCompile 'junit:junit:4.11'
     testCompile 'org.glassfish.tyrus:tyrus-client:1.9'
     testCompile 'com.google.guava:guava:18.0'
+}
+
+task sourcesJar( type: Jar, dependsOn: classes ) {
+    from sourceSets.main.allSource
+    classifier "sources"
+    extension "jar"
+}
+/* Publishing config */
+publishing {
+    publications {
+        mavenJava( MavenPublication ) {
+            from components.java
+            artifact sourcesJar
+        }
+    }
 }

@@ -84,6 +84,28 @@ public class SparkWSTest {
         assertMessageReceived( "part2/part3", "P2P3" );
     }
 
+    @Test
+    public void mostSpecificPathIsSelected() throws Exception {
+        wsEndpoint( "part1/part2/part3", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P1P2P3" );
+        } );
+        wsEndpoint( "part1", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P1" );
+        } );
+        wsEndpoint( "part1/part2", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P1P2" );
+        } );
+        wsEndpoint( "part1/part2/part3/part4", ( session, message ) -> {
+            session.getBasicRemote().sendText( "P1P2P3P4" );
+        } );
+        runServer();
+
+        assertMessageReceived( "part1", "P1" );
+        assertMessageReceived( "part1/part2", "P1P2" );
+        assertMessageReceived( "part1/part2/part3", "P1P2P3" );
+        assertMessageReceived( "part1/part2/part3/part4", "P1P2P3P4" );
+    }
+
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {
         final SettableFuture<String> futureMessage = SettableFuture.create();
 

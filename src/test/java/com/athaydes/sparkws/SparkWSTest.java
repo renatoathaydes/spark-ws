@@ -52,6 +52,20 @@ public class SparkWSTest {
         assertMessageReceived( "ola", "Ola SparkWS" );
     }
 
+    @Test
+    public void twoDifferentSimpleEndpoints() throws Exception {
+        wsEndpoint( "ep1", ( session, message ) -> {
+            session.getBasicRemote().sendText( "EP1" );
+        } );
+        wsEndpoint( "ep2", ( session, message ) -> {
+            session.getBasicRemote().sendText( "EP2" );
+        } );
+        runServer();
+
+        assertMessageReceived( "ep1", "EP1" );
+        assertMessageReceived( "ep2", "EP2" );
+    }
+
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {
         final SettableFuture<String> futureMessage = SettableFuture.create();
 

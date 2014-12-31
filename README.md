@@ -5,6 +5,8 @@
 ## Quick Start
 
 ```java
+import static com.athaydes.sparkws.SparkWS.wsEndpoint;
+
 public class HelloSparkWS {
     public static void main(String[] args) {
         wsEndpoint( "hello", ( session, message ) ->

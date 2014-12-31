@@ -3,6 +3,7 @@ package com.athaydes.sparkws;
 import com.google.common.util.concurrent.SettableFuture;
 import org.glassfish.tyrus.client.ClientManager;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.websocket.ClientEndpointConfig;
@@ -13,10 +14,14 @@ import javax.websocket.Session;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
+import static com.athaydes.sparkws.SparkWS.serverInstance;
 import static com.athaydes.sparkws.SparkWS.stopServer;
 import static com.athaydes.sparkws.SparkWS.wsEndpoint;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -25,10 +30,27 @@ public class SparkWSTest {
 
     private final ClientEndpointConfig cec = ClientEndpointConfig.Builder.create().build();
     private final ClientManager client = ClientManager.createClient();
+    private static final ReentrantLock lock = new ReentrantLock();
+
+    @Before
+    public void setup() {
+        lock.lock();
+    }
 
     @After
     public void cleanup() {
         stopServer();
+        lock.unlock();
+    }
+
+    @Test
+    public void startStopTest() {
+        for ( int i = 0; i < 10; i++ ) {
+            serverInstance.start();
+            assertTrue( "Server not started on run " + i, serverInstance.isStarted() );
+            serverInstance.stop();
+            assertFalse( "Server not stopped on run " + i, serverInstance.isStarted() );
+        }
     }
 
     @Test

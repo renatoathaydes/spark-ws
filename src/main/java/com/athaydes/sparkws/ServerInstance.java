@@ -69,6 +69,9 @@ class ServerInstance {
     }
 
     void start() {
+        if ( started ) {
+            return;
+        }
         serverThread.start();
         started = true;
     }

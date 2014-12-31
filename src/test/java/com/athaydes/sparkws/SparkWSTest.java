@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-import static com.athaydes.sparkws.SparkWS.runServer;
 import static com.athaydes.sparkws.SparkWS.stopServer;
 import static com.athaydes.sparkws.SparkWS.wsEndpoint;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +36,6 @@ public class SparkWSTest {
         wsEndpoint( "hello", ( session, message ) -> {
             session.getBasicRemote().sendText( "Hello " + message );
         } );
-        runServer();
 
         assertMessageReceived( "hello", "Hello SparkWS" );
     }
@@ -47,7 +45,6 @@ public class SparkWSTest {
         wsEndpoint( "ola", ( session, message ) -> {
             session.getBasicRemote().sendText( "Ola " + message );
         } );
-        runServer();
 
         assertMessageReceived( "ola", "Ola SparkWS" );
     }
@@ -60,7 +57,6 @@ public class SparkWSTest {
         wsEndpoint( "ep2", ( session, message ) -> {
             session.getBasicRemote().sendText( "EP2" );
         } );
-        runServer();
 
         assertMessageReceived( "ep1", "EP1" );
         assertMessageReceived( "ep2", "EP2" );
@@ -77,7 +73,6 @@ public class SparkWSTest {
         wsEndpoint( "part2/part3", ( session, message ) -> {
             session.getBasicRemote().sendText( "P2P3" );
         } );
-        runServer();
 
         assertMessageReceived( "part1/part2", "P1P2" );
         assertMessageReceived( "part1/part3", "P1P3" );
@@ -98,7 +93,6 @@ public class SparkWSTest {
         wsEndpoint( "part1/part2/part3/part4", ( session, message ) -> {
             session.getBasicRemote().sendText( "P1P2P3P4" );
         } );
-        runServer();
 
         assertMessageReceived( "part1", "P1" );
         assertMessageReceived( "part1/part2", "P1P2" );

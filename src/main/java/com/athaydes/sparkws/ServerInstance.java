@@ -16,7 +16,6 @@ class ServerInstance {
     private volatile State state;
     private volatile ServerContainer server;
     private volatile Thread serverThread;
-    private volatile Thread shutdownHookThread;
     private volatile CountDownLatch serverLatch;
 
     private volatile boolean started = false;
@@ -25,7 +24,21 @@ class ServerInstance {
 
     ServerInstance() {
         serverProperties.put( TyrusWebSocketEngine.WSADL_SUPPORT, "true" );
+        Runtime.getRuntime().addShutdownHook( createShutdownHookThread() );
         reset();
+    }
+
+    private Thread createShutdownHookThread() {
+        return new Thread() {
+            @Override
+            public void run() {
+                try {
+                    ServerInstance.this.stop();
+                } catch ( Exception e ) {
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 
     private void reset() {
@@ -33,17 +46,6 @@ class ServerInstance {
         handlers.clear();
         server = ServerContainerFactory.createServerContainer( serverProperties );
         serverLatch = new CountDownLatch( 1 );
-
-        shutdownHookThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    ServerInstance.this.stop( true );
-                } catch ( Exception e ) {
-                    e.printStackTrace();
-                }
-            }
-        };
 
         serverThread = new Thread( "SparkWS-Server" ) {
             @Override
@@ -62,17 +64,16 @@ class ServerInstance {
     }
 
     void start() {
-        Runtime.getRuntime().addShutdownHook( shutdownHookThread );
         serverThread.start();
         started = true;
     }
 
-    void stop( boolean shuttingDown ) {
-        started = false;
-        serverLatch.countDown();
-        if ( !shuttingDown ) {
-            Runtime.getRuntime().removeShutdownHook( shutdownHookThread );
+    void stop() {
+        if ( !started ) {
+            return;
         }
+        serverLatch.countDown();
+        started = false;
         reset();
     }
 

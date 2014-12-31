@@ -42,6 +42,16 @@ public class SparkWSTest {
         assertMessageReceived( "hello", "Hello SparkWS" );
     }
 
+    @Test
+    public void simplestStartAgainToEnsureServerCanBeRestarted() throws Exception {
+        wsEndpoint( "ola", ( session, message ) -> {
+            session.getBasicRemote().sendText( "Ola " + message );
+        } );
+        runServer();
+
+        assertMessageReceived( "ola", "Ola SparkWS" );
+    }
+
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {
         final SettableFuture<String> futureMessage = SettableFuture.create();
 

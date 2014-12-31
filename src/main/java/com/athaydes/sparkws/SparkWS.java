@@ -3,10 +3,6 @@ package com.athaydes.sparkws;
 import com.athaydes.sparkws.internal.EndpointWithOnMessage;
 import com.athaydes.sparkws.remote.OnMessage;
 import com.athaydes.sparkws.remote.OnStart;
-import org.glassfish.tyrus.core.TyrusWebSocketEngine;
-import org.glassfish.tyrus.spi.ServerContainer;
-import org.glassfish.tyrus.spi.ServerContainerFactory;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
@@ -14,8 +10,6 @@ import javax.websocket.EndpointConfig;
 import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * SparkWS is, basically, a namespace for all "functions", or static methods, that can
@@ -30,8 +24,8 @@ public class SparkWS {
     }
 
     public static synchronized void stopServer() {
-        if ( serverInstance != null && serverInstance.isStarted() ) {
-            serverInstance.stop(false);
+        if ( serverInstance != null ) {
+            serverInstance.stop();
         }
     }
 
@@ -57,7 +51,7 @@ public class SparkWS {
 
     private static void ensureServerNotStarted() {
         if ( serverInstance.isStarted() ) {
-            throw new InvalidStateException( "Server already started" );
+            throw new IllegalStateException( "Server already started" );
         }
     }
 

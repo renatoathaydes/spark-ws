@@ -2,39 +2,50 @@ package com.athaydes.sparkws;
 
 import com.athaydes.sparkws.internal.EndpointWithOnMessage;
 import org.glassfish.tyrus.core.TyrusServerEndpointConfig;
+import org.glassfish.tyrus.core.TyrusWebSocketEngine;
 import org.glassfish.tyrus.spi.ServerContainer;
+import org.glassfish.tyrus.spi.ServerContainerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 class ServerInstance {
 
-    private State state = new State();
+    private volatile State state;
     private volatile ServerContainer server;
-    private Thread serverThread;
-    private Thread shutdownHookThread;
-    private boolean started = false;
+    private volatile Thread serverThread;
+    private volatile Thread shutdownHookThread;
+    private volatile CountDownLatch serverLatch;
+
+    private volatile boolean started = false;
     private final Map<String, EndpointWithOnMessage> handlers = new ConcurrentHashMap<>();
-    private final CountDownLatch serverLatch = new CountDownLatch( 1 );
+    private final Map<String, Object> serverProperties = new HashMap<>();
 
-    ServerInstance( ServerContainer serverContainer ) {
-        Objects.requireNonNull( serverContainer );
-        this.server = serverContainer;
+    ServerInstance() {
+        serverProperties.put( TyrusWebSocketEngine.WSADL_SUPPORT, "true" );
+        reset();
+    }
 
-        this.shutdownHookThread = new Thread() {
+    private void reset() {
+        state = new State();
+        handlers.clear();
+        server = ServerContainerFactory.createServerContainer( serverProperties );
+        serverLatch = new CountDownLatch( 1 );
+
+        shutdownHookThread = new Thread() {
             @Override
             public void run() {
                 try {
-                    server.stop();
+                    ServerInstance.this.stop( true );
                 } catch ( Exception e ) {
                     e.printStackTrace();
                 }
             }
         };
 
-        this.serverThread = new Thread( "SparkWS-Server" ) {
+        serverThread = new Thread( "SparkWS-Server" ) {
             @Override
             public void run() {
                 try {
@@ -45,8 +56,6 @@ class ServerInstance {
                     serverLatch.await();
                 } catch ( Exception e ) {
                     e.printStackTrace();
-                } finally {
-                    ServerInstance.this.stop();
                 }
             }
         };
@@ -58,15 +67,13 @@ class ServerInstance {
         started = true;
     }
 
-    void stop() {
-        state = new State();
-        handlers.clear();
+    void stop( boolean shuttingDown ) {
         started = false;
         serverLatch.countDown();
-        Runtime.getRuntime().removeShutdownHook( shutdownHookThread );
-        serverThread = null;
-        shutdownHookThread = null;
-        server = null;
+        if ( !shuttingDown ) {
+            Runtime.getRuntime().removeShutdownHook( shutdownHookThread );
+        }
+        reset();
     }
 
     public State getState() {

@@ -23,15 +23,7 @@ import java.util.Map;
  */
 public class SparkWS {
 
-    private static volatile ServerInstance serverInstance;
-
-    static {
-        Map<String, Object> props = new HashMap<>();
-        props.put( TyrusWebSocketEngine.WSADL_SUPPORT, "true" );
-
-        ServerContainer server = ServerContainerFactory.createServerContainer( props );
-        serverInstance = new ServerInstance( server );
-    }
+    private static volatile ServerInstance serverInstance = new ServerInstance();
 
     public static synchronized void runServer() {
         serverInstance.start();
@@ -39,7 +31,7 @@ public class SparkWS {
 
     public static synchronized void stopServer() {
         if ( serverInstance != null && serverInstance.isStarted() ) {
-            serverInstance.stop();
+            serverInstance.stop(false);
         }
     }
 

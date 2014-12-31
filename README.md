@@ -1,6 +1,6 @@
 # SparkWS
 
-> A Java Websockets library inspired by [Spark](sparkjava.com).
+> A Java Websockets library inspired by [Spark](http://sparkjava.com/).
 
 ## Quick Start
 

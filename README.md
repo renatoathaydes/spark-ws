@@ -2,7 +2,21 @@
 
 > A Java Websockets library inspired by [Spark](sparkjava.com).
 
-## Getting started
+## Quick Start
+
+```java
+public class HelloSparkWS {
+    public static void main(String[] args) {
+        wsEndpoint( "hello", ( session, message ) ->
+            session.getBasicRemote().sendText( "Hello " + message ) );
+    }
+}
+```
+
+You can immediately test it using [this web page](http://www.websocket.org/echo.html).
+Set `Location` to `ws://192.168.1.16:8025/hello`.
+
+## Depending on Spark-WS
 
 Add a dependency to Spark-WS:
 
@@ -24,22 +38,6 @@ compile 'com.athaydes.spark-ws:spark-ws:0.1'
     <version>0.1</version>
 </dependency>
 ```
-
-Write a *Hello World* Websocket server that will run at `localhost:8025/hello` with a single endpoint:
-
-```java
-public class HelloSparkWS {
-    public static void main(String[] args) {
-        wsEndpoint( "hello", ( session, message ) ->
-            session.getBasicRemote().sendText( "Hello " + message ) );
-    }
-}
-```
-
-That's it! The server is started automatically and you can immediately test it using
-[this page](http://www.websocket.org/echo.html), for example.
-Set `Location` to `ws://192.168.1.16:8025/hello`.
-
 
 ## Broadcasting
 

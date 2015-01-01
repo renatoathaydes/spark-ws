@@ -43,7 +43,7 @@ compile 'com.athaydes.spark-ws:spark-ws:0.1'
 
 ## Documentation
 
-[Click here](wiki/Spark-WS-Documentation) to visit the wiki.
+[Click here](https://github.com/renatoathaydes/spark-ws/wiki/Spark-WS-Documentation) to visit the Wiki.
 
 ## Demos
 

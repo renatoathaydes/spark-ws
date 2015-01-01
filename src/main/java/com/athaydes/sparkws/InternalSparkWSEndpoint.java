@@ -24,6 +24,8 @@ public class InternalSparkWSEndpoint extends Endpoint {
                 e.printStackTrace();
             }
             return;
+        } else {
+            handler.onOpen( session, config );
         }
         session.addMessageHandler( new MessageHandler.Whole<String>() {
             @Override

@@ -13,6 +13,8 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -120,6 +122,17 @@ public class SparkWSTest {
         assertMessageReceived( "part1/part2", "P1P2" );
         assertMessageReceived( "part1/part2/part3", "P1P2P3" );
         assertMessageReceived( "part1/part2/part3/part4", "P1P2P3P4" );
+    }
+
+    @Test
+    public void onStartHandlerGetsCalled() throws Exception {
+        List<Session> interactions = new ArrayList<>();
+        wsEndpoint( "test",
+                ( session, config ) -> interactions.add( session ),
+                ( session, message ) -> session.getBasicRemote().sendText( "A" ) );
+
+        assertMessageReceived( "test", "A" );
+        assertEquals( 1, interactions.size() );
     }
 
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {

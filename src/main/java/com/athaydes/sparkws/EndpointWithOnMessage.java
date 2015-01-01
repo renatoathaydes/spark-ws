@@ -9,16 +9,52 @@ import java.io.IOException;
 class EndpointWithOnMessage extends Endpoint implements OnMessage {
 
     private final OnMessage onMessage;
-    private OnStart onStart;
-    private Endpoint delegateEndpoint;
+    private final Endpoint delegateEndpoint;
+
+    private static void noOp() {
+    }
 
     public EndpointWithOnMessage( OnMessage onMessage ) {
-        this.onMessage = onMessage;
+        this( ( a, b ) -> noOp(), onMessage, ( a, b ) -> noOp(), ( a, b ) -> noOp() );
     }
 
     public EndpointWithOnMessage( OnStart onStart, OnMessage onMessage ) {
-        this.onStart = onStart;
-        this.onMessage = onMessage;
+        this( onStart, onMessage, ( a, b ) -> noOp(), ( a, b ) -> noOp() );
+    }
+
+    public EndpointWithOnMessage( OnStart onStart, OnMessage onMessage, OnError onError ) {
+        this( onStart, onMessage, onError, ( a, b ) -> noOp() );
+    }
+
+    public EndpointWithOnMessage( OnStart onStart, OnMessage onMessage, OnError onError, OnClose onClose ) {
+        this( onMessage, new Endpoint() {
+            @Override
+            public void onOpen( Session session, EndpointConfig config ) {
+                try {
+                    onStart.accept( session, config );
+                } catch ( Throwable throwable ) {
+                    onError( session, throwable );
+                }
+            }
+
+            @Override
+            public void onClose( Session session, CloseReason closeReason ) {
+                try {
+                    onClose.accept( session, closeReason );
+                } catch ( Throwable throwable ) {
+                    onError( session, throwable );
+                }
+            }
+
+            @Override
+            public void onError( Session session, Throwable error ) {
+                try {
+                    onError.accept( session, error );
+                } catch ( Throwable throwable ) {
+                    throwable.printStackTrace();
+                }
+            }
+        } );
     }
 
     public EndpointWithOnMessage( OnMessage onMessage, Endpoint endpoint ) {
@@ -28,27 +64,17 @@ class EndpointWithOnMessage extends Endpoint implements OnMessage {
 
     @Override
     public void onOpen( Session session, EndpointConfig config ) {
-        if ( delegateEndpoint != null ) {
-            delegateEndpoint.onOpen( session, config );
-        } else if ( onStart != null ) try {
-            onStart.accept( session, config );
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        }
+        delegateEndpoint.onOpen( session, config );
     }
 
     @Override
     public void onClose( Session session, CloseReason closeReason ) {
-        if ( delegateEndpoint != null ) {
-            delegateEndpoint.onClose( session, closeReason );
-        }
+        delegateEndpoint.onClose( session, closeReason );
     }
 
     @Override
     public void onError( Session session, Throwable error ) {
-        if ( delegateEndpoint != null ) {
-            delegateEndpoint.onError( session, error );
-        }
+        delegateEndpoint.onError( session, error );
     }
 
     @Override

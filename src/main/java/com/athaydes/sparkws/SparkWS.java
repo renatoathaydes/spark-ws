@@ -16,7 +16,7 @@ public class SparkWS {
     public static synchronized void stopServer() {
         if ( serverInstance != null ) {
             serverInstance.stop();
-            System.out.println("Server STOPPED!");
+            System.out.println( "Server STOPPED!" );
         }
     }
 
@@ -31,6 +31,16 @@ public class SparkWS {
 
     public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage ) {
         serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage ) );
+        serverInstance.start();
+    }
+
+    public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage, OnError onError ) {
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage, onError ) );
+        serverInstance.start();
+    }
+
+    public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage, OnError onError, OnClose onClose ) {
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage, onError, onClose ) );
         serverInstance.start();
     }
 

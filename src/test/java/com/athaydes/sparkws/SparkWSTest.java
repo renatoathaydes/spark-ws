@@ -129,10 +129,92 @@ public class SparkWSTest {
     }
 
     @Test
-    public void endpointHandlersGetCalled() throws Exception {
+    public void onOpenOnErrorHandlersGetCalled() throws Exception {
+        List<String> handlerCalls = new ArrayList<>();
+
+        createEndpointUsingOnOpenOnError( handlerCalls );
+
+        assertMessageReceived( "test", "B" );
+
+        clientSession.getBasicRemote().sendText( "ERROR" );
+
+        assertEquals( Arrays.asList( "onOpen", "onError:RuntimeException" ), handlerCalls );
+    }
+
+    @Test
+    public void onOpenOnErrorOnCloseHandlersGetCalled() throws Exception {
         List<String> handlerCalls = new ArrayList<>();
         CountDownLatch onCloseLatch = new CountDownLatch( 1 );
 
+        createEndpointUsingOnOpenOnErrorOnClose( handlerCalls, onCloseLatch );
+
+        assertMessageReceived( "test", "B" );
+
+        clientSession.getBasicRemote().sendText( "ERROR" );
+        clientSession.close();
+        onCloseLatch.await( 2, TimeUnit.SECONDS );
+
+        assertEquals( Arrays.asList( "onOpen", "onError:RuntimeException", "onClose" ), handlerCalls );
+    }
+
+    @Test
+    public void customEndpointHandlersGetCalled() throws Exception {
+        List<String> handlerCalls = new ArrayList<>();
+        CountDownLatch onCloseLatch = new CountDownLatch( 1 );
+
+        createEndpointUsingCustomEndpoint( handlerCalls, onCloseLatch );
+
+        assertMessageReceived( "test", "B" );
+
+        clientSession.getBasicRemote().sendText( "ERROR" );
+        clientSession.close();
+        onCloseLatch.await( 2, TimeUnit.SECONDS );
+
+        assertEquals( Arrays.asList( "onOpen", "onError:RuntimeException", "onClose" ), handlerCalls );
+    }
+
+    private void createEndpointUsingOnOpenOnError( List<String> handlerCalls ) {
+        wsEndpoint( "test",
+                ( session, config ) -> handlerCalls.add( "onOpen" ),
+                ( session, message ) -> {
+                    if ( message.equals( "ERROR" ) ) {
+                        throw new RuntimeException();
+                    }
+                    session.getBasicRemote().sendText( "B" );
+                }, ( session, error ) -> {
+                    handlerCalls.add( "onError:" + error.getClass().getSimpleName() );
+                    try {
+                        session.getBasicRemote().sendText( "ERROR" );
+                    } catch ( IOException e ) {
+                        e.printStackTrace();
+                    }
+
+                } );
+    }
+
+    private void createEndpointUsingOnOpenOnErrorOnClose( List<String> handlerCalls, CountDownLatch onCloseLatch ) {
+        wsEndpoint( "test",
+                ( session, config ) -> handlerCalls.add( "onOpen" ),
+                ( session, message ) -> {
+                    if ( message.equals( "ERROR" ) ) {
+                        throw new RuntimeException();
+                    }
+                    session.getBasicRemote().sendText( "B" );
+                }, ( session, error ) -> {
+                    handlerCalls.add( "onError:" + error.getClass().getSimpleName() );
+                    try {
+                        session.getBasicRemote().sendText( "ERROR" );
+                    } catch ( IOException e ) {
+                        e.printStackTrace();
+                    }
+
+                }, ( session, closeReason ) -> {
+                    handlerCalls.add( "onClose" );
+                    onCloseLatch.countDown();
+                } );
+    }
+
+    private void createEndpointUsingCustomEndpoint( List<String> handlerCalls, CountDownLatch onCloseLatch ) {
         wsEndpoint( "test",
                 ( session, message ) -> {
                     if ( message.equals( "ERROR" ) ) {
@@ -161,14 +243,6 @@ public class SparkWSTest {
                         }
                     }
                 } );
-
-        assertMessageReceived( "test", "B" );
-
-        clientSession.getBasicRemote().sendText( "ERROR" );
-        clientSession.close();
-        onCloseLatch.await( 2, TimeUnit.SECONDS );
-
-        assertEquals( Arrays.asList( "onOpen", "onError:RuntimeException", "onClose" ), handlerCalls );
     }
 
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {

@@ -1,4 +1,4 @@
-package com.athaydes.sparkws.demo;
+package com.athaydes.sparkws.demo.chat;
 
 import javax.websocket.Session;
 

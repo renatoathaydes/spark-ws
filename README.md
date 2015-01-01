@@ -47,5 +47,4 @@ compile 'com.athaydes.spark-ws:spark-ws:0.1'
 
 ## Demos
 
-* A very simple Spark-WS-based [Chat application](src/demo/com/athaydes/sparkws/demo), complete with
-  a HTML/JavaScript client.
+* See the [Demo applications](src/demo/com/athaydes/sparkws/demo) directory.

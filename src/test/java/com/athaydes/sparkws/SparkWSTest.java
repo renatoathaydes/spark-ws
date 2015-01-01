@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.websocket.ClientEndpointConfig;
+import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.MessageHandler;
@@ -14,7 +15,9 @@ import javax.websocket.Session;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,6 +35,7 @@ public class SparkWSTest {
 
     private final ClientEndpointConfig cec = ClientEndpointConfig.Builder.create().build();
     private final ClientManager client = ClientManager.createClient();
+    private Session clientSession;
     private static final ReentrantLock lock = new ReentrantLock();
 
     @Before
@@ -135,13 +139,61 @@ public class SparkWSTest {
         assertEquals( 1, interactions.size() );
     }
 
+    @Test
+    public void endpointHandlersGetCalled() throws Exception {
+        List<String> handlerCalls = new ArrayList<>();
+        CountDownLatch onCloseLatch = new CountDownLatch( 1 );
+
+        wsEndpoint( "test",
+                ( session, message ) -> {
+                    if ( message.equals( "ERROR" ) ) {
+                        throw new RuntimeException();
+                    }
+                    session.getBasicRemote().sendText( "B" );
+                }, new Endpoint() {
+                    @Override
+                    public void onOpen( Session session, EndpointConfig config ) {
+                        handlerCalls.add( "onOpen" );
+                    }
+
+                    @Override
+                    public void onClose( Session session, CloseReason closeReason ) {
+                        handlerCalls.add( "onClose" );
+                        onCloseLatch.countDown();
+                    }
+
+                    @Override
+                    public void onError( Session session, Throwable thr ) {
+                        handlerCalls.add( "onError:" + thr.getClass().getSimpleName() );
+                        try {
+                            session.getBasicRemote().sendText( "ERROR" );
+                        } catch ( IOException e ) {
+                            e.printStackTrace();
+                        }
+                    }
+                } );
+
+        assertMessageReceived( "test", "B" );
+
+        clientSession.getBasicRemote().sendText( "ERROR" );
+        clientSession.close();
+        onCloseLatch.await( 2, TimeUnit.SECONDS );
+
+        assertEquals( Arrays.asList( "onOpen", "onError:RuntimeException", "onClose" ), handlerCalls );
+    }
+
     private void assertMessageReceived( String endpoint, String expectedMessage ) throws Exception {
+        assertMessageReceived( endpoint, expectedMessage, "SparkWS" );
+    }
+
+    private void assertMessageReceived( String endpoint, String expectedMessage, String messageToSend ) throws Exception {
         final SettableFuture<String> futureMessage = SettableFuture.create();
 
         client.connectToServer( new Endpoint() {
 
             @Override
             public void onOpen( Session session, EndpointConfig config ) {
+                clientSession = session;
                 try {
                     session.addMessageHandler( new MessageHandler.Whole<String>() {
 
@@ -151,7 +203,7 @@ public class SparkWSTest {
                             futureMessage.set( message );
                         }
                     } );
-                    session.getBasicRemote().sendText( "SparkWS" );
+                    session.getBasicRemote().sendText( messageToSend );
                 } catch ( IOException e ) {
                     e.printStackTrace();
                 }

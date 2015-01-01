@@ -1,5 +1,6 @@
 package com.athaydes.sparkws;
 
+import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Session;
@@ -29,10 +30,24 @@ class EndpointWithOnMessage extends Endpoint implements OnMessage {
     public void onOpen( Session session, EndpointConfig config ) {
         if ( delegateEndpoint != null ) {
             delegateEndpoint.onOpen( session, config );
-        } else try {
+        } else if ( onStart != null ) try {
             onStart.accept( session, config );
         } catch ( IOException e ) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onClose( Session session, CloseReason closeReason ) {
+        if ( delegateEndpoint != null ) {
+            delegateEndpoint.onClose( session, closeReason );
+        }
+    }
+
+    @Override
+    public void onError( Session session, Throwable error ) {
+        if ( delegateEndpoint != null ) {
+            delegateEndpoint.onError( session, error );
         }
     }
 

@@ -5,10 +5,10 @@ import javax.websocket.Session;
 import java.io.IOException;
 
 /**
- * Action to run when a websocket connection is started.
+ * Action to run when a websocket connection is opened.
  */
 @FunctionalInterface
-public interface OnStart {
+public interface OnOpen {
 
     void accept( Session session, EndpointConfig config )
             throws IOException;

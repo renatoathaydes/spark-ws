@@ -29,18 +29,18 @@ public class SparkWS {
         serverInstance.start();
     }
 
-    public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage ) {
-        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage ) );
+    public static void wsEndpoint( String path, OnOpen onOpen, OnMessage onMessage ) {
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onOpen, onMessage ) );
         serverInstance.start();
     }
 
-    public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage, OnError onError ) {
-        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage, onError ) );
+    public static void wsEndpoint( String path, OnOpen onOpen, OnMessage onMessage, OnError onError ) {
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onOpen, onMessage, onError ) );
         serverInstance.start();
     }
 
-    public static void wsEndpoint( String path, OnStart onStart, OnMessage onMessage, OnError onError, OnClose onClose ) {
-        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onStart, onMessage, onError, onClose ) );
+    public static void wsEndpoint( String path, OnOpen onOpen, OnMessage onMessage, OnError onError, OnClose onClose ) {
+        serverInstance.getHandlers().put( path, new EndpointWithOnMessage( onOpen, onMessage, onError, onClose ) );
         serverInstance.start();
     }
 

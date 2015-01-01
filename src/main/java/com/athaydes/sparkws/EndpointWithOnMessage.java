@@ -18,20 +18,20 @@ class EndpointWithOnMessage extends Endpoint implements OnMessage {
         this( ( a, b ) -> noOp(), onMessage, ( a, b ) -> noOp(), ( a, b ) -> noOp() );
     }
 
-    public EndpointWithOnMessage( OnStart onStart, OnMessage onMessage ) {
-        this( onStart, onMessage, ( a, b ) -> noOp(), ( a, b ) -> noOp() );
+    public EndpointWithOnMessage( OnOpen onOpen, OnMessage onMessage ) {
+        this( onOpen, onMessage, ( a, b ) -> noOp(), ( a, b ) -> noOp() );
     }
 
-    public EndpointWithOnMessage( OnStart onStart, OnMessage onMessage, OnError onError ) {
-        this( onStart, onMessage, onError, ( a, b ) -> noOp() );
+    public EndpointWithOnMessage( OnOpen onOpen, OnMessage onMessage, OnError onError ) {
+        this( onOpen, onMessage, onError, ( a, b ) -> noOp() );
     }
 
-    public EndpointWithOnMessage( OnStart onStart, OnMessage onMessage, OnError onError, OnClose onClose ) {
+    public EndpointWithOnMessage( OnOpen onOpen, OnMessage onMessage, OnError onError, OnClose onClose ) {
         this( onMessage, new Endpoint() {
             @Override
             public void onOpen( Session session, EndpointConfig config ) {
                 try {
-                    onStart.accept( session, config );
+                    onOpen.accept( session, config );
                 } catch ( Throwable throwable ) {
                     onError( session, throwable );
                 }

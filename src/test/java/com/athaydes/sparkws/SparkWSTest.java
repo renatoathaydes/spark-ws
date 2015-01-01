@@ -61,30 +61,26 @@ public class SparkWSTest {
 
     @Test
     public void simplestStart() throws Exception {
-        wsEndpoint( "hello", ( session, message ) -> {
-            session.getBasicRemote().sendText( "Hello " + message );
-        } );
+        wsEndpoint( "hello", ( session, message ) ->
+                session.getBasicRemote().sendText( "Hello " + message ) );
 
         assertMessageReceived( "hello", "Hello SparkWS" );
     }
 
     @Test
     public void simplestStartAgainToEnsureServerCanBeRestarted() throws Exception {
-        wsEndpoint( "ola", ( session, message ) -> {
-            session.getBasicRemote().sendText( "Ola " + message );
-        } );
+        wsEndpoint( "ola", ( session, message ) ->
+                session.getBasicRemote().sendText( "Ola " + message ) );
 
         assertMessageReceived( "ola", "Ola SparkWS" );
     }
 
     @Test
     public void twoDifferentSimpleEndpoints() throws Exception {
-        wsEndpoint( "ep1", ( session, message ) -> {
-            session.getBasicRemote().sendText( "EP1" );
-        } );
-        wsEndpoint( "ep2", ( session, message ) -> {
-            session.getBasicRemote().sendText( "EP2" );
-        } );
+        wsEndpoint( "ep1", ( session, message ) ->
+                session.getBasicRemote().sendText( "EP1" ) );
+        wsEndpoint( "ep2", ( session, message ) ->
+                session.getBasicRemote().sendText( "EP2" ) );
 
         assertMessageReceived( "ep1", "EP1" );
         assertMessageReceived( "ep2", "EP2" );
@@ -92,15 +88,12 @@ public class SparkWSTest {
 
     @Test
     public void multiPathEndpoints() throws Exception {
-        wsEndpoint( "part1/part2", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P1P2" );
-        } );
-        wsEndpoint( "part1/part3", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P1P3" );
-        } );
-        wsEndpoint( "part2/part3", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P2P3" );
-        } );
+        wsEndpoint( "part1/part2", ( session, message ) ->
+                session.getBasicRemote().sendText( "P1P2" ) );
+        wsEndpoint( "part1/part3", ( session, message ) ->
+                session.getBasicRemote().sendText( "P1P3" ) );
+        wsEndpoint( "part2/part3", ( session, message ) ->
+                session.getBasicRemote().sendText( "P2P3" ) );
 
         assertMessageReceived( "part1/part2", "P1P2" );
         assertMessageReceived( "part1/part3", "P1P3" );
@@ -109,18 +102,14 @@ public class SparkWSTest {
 
     @Test
     public void mostSpecificPathIsSelected() throws Exception {
-        wsEndpoint( "part1/part2/part3", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P1P2P3" );
-        } );
-        wsEndpoint( "part1", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P1" );
-        } );
-        wsEndpoint( "part1/part2", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P1P2" );
-        } );
-        wsEndpoint( "part1/part2/part3/part4", ( session, message ) -> {
-            session.getBasicRemote().sendText( "P1P2P3P4" );
-        } );
+        wsEndpoint( "part1/part2/part3", ( session, message ) ->
+                session.getBasicRemote().sendText( "P1P2P3" ) );
+        wsEndpoint( "part1", ( session, message ) ->
+                session.getBasicRemote().sendText( "P1" ) );
+        wsEndpoint( "part1/part2", ( session, message ) ->
+                session.getBasicRemote().sendText( "P1P2" ) );
+        wsEndpoint( "part1/part2/part3/part4", ( session, message ) ->
+                session.getBasicRemote().sendText( "P1P2P3P4" ) );
 
         assertMessageReceived( "part1", "P1" );
         assertMessageReceived( "part1/part2", "P1P2" );

@@ -137,6 +137,7 @@ public class SparkWSTest {
         assertMessageReceived( "test", "B" );
 
         clientSession.getBasicRemote().sendText( "ERROR" );
+        clientSession.close();
 
         assertEquals( Arrays.asList( "onOpen", "onError:RuntimeException" ), handlerCalls );
     }

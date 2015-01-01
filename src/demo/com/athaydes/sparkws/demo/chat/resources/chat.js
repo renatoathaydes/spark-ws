@@ -1,15 +1,23 @@
+var host = window.location.hostname;
 
-var wsUri = "ws://localhost:8025/chat";
-var output, websocket;
+var wsUri = "ws://" + host + ":8025/chat";
+var input, output, websocket, sendButton;
 
 function init() {
-  if (websocket !== undefined) {
-    disconnect();
-  }
+  input = document.getElementById("input");
   output = document.getElementById("output");
+  sendButton = document.getElementById("send-button");
+  disconnect();
+  input.onkeyup = inputKeyup;
 }
 
-function testWebSocket() {
+function inputKeyup(event) {
+  if (event.keyCode == 13) {
+    sendText();
+  }
+}
+
+function initWebsocket() {
   websocket = new WebSocket(wsUri);
   websocket.onopen = function(evt) { onOpen(evt) };
   websocket.onclose = function(evt) { onClose(evt) };
@@ -30,16 +38,18 @@ function onMessage(evt) {
 }
 
 function connect() {
-  if (websocket === undefined) {
-    testWebSocket();
+  if (!websocket) {
+    initWebsocket();
   }
+  sendButton.disabled = false;
 }
 
 function disconnect() {
-  if (websocket !== undefined) {
+  if (websocket) {
     websocket.close();
-    websocket = undefined;
   }
+  websocket = false;
+  sendButton.disabled = true;
 }
 
 function onError(evt) {
@@ -47,8 +57,10 @@ function onError(evt) {
 }
 
 function sendText() {
-  var message = document.getElementById("input").value;
-  websocket.send(message);
+  if (websocket) {
+    websocket.send(input.value);
+    input.value = "";
+  }
 }
 
 function writeToScreen(message) {
@@ -56,6 +68,9 @@ function writeToScreen(message) {
   pre.style.wordWrap = "break-word";
   pre.innerHTML = message;
   output.appendChild(pre);
+  try {
+    output.scrollTop = output.scrollHeight;
+  } catch (e) {}
 }
 
 window.addEventListener("load", init, false);

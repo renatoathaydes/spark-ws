@@ -6,11 +6,22 @@
 
 <script language="javascript" type="text/javascript" src="chat.js"></script>
 
+<style>
+    div#output {
+        height: 200px;
+        overflow: scroll;
+        border: solid;
+        border-width: thin;
+        border-color: gray;
+        margin-top: 10px;
+    }
+</style>
+
 <body>
     <h2>Spark-WS Chat App</h2>
 
     <textarea id="input">Hello Spark-WS</textarea>
-    <input type="button" value="Send" onclick="sendText()">
+    <input type="button" value="Send" onclick="sendText()" id="send-button">
     <input type="button" value="Connect" onclick="connect()">
     <input type="button" value="Disconnect" onclick="disconnect()">
     <div id="output"></div>

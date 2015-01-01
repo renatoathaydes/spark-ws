@@ -20,6 +20,9 @@ sourceSets {
             srcDir 'src/test/java'
             srcDir 'src/demo'
         }
+        resources {
+            srcDir 'src/demo'
+        }
     }
 }
 
@@ -30,6 +33,7 @@ dependencies {
     testCompile 'junit:junit:4.11'
     testCompile 'org.glassfish.tyrus:tyrus-client:1.9'
     testCompile 'com.google.guava:guava:18.0'
+    testCompile 'com.sparkjava:spark-core:2.1'
 }
 
 task sourcesJar( type: Jar, dependsOn: classes ) {

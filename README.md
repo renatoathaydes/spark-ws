@@ -41,17 +41,9 @@ compile 'com.athaydes.spark-ws:spark-ws:0.1'
 </dependency>
 ```
 
-## Broadcasting
+## Documentation
 
-You can broadcast a message to all connected sessions using the `SparkWS.broadcast()` method:
-
-```java
-wsEndpoint( "chat",
-    ( session, config ) -> broadcast( session, name( session ) + " joined this conversation" ),
-    ( session, message ) -> broadcast( session, name( session ) + " says: " + message ) );
-```
-
-In the above example, the first closure is a `onStart` handler, and the second a `onMessage` handler.
+[Click here](wiki/Spark-WS-Documentation) to visit the wiki.
 
 ## Demos
 
